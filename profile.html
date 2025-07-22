@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Storeez - Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      height: 100vh;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+
+    .sidebar {
+      width: 200px;
+      background-color: #ffffff;
+      border-right: 1px solid #ddd;
+      padding: 20px;
+      flex-shrink: 0;
+    }
+
+    .sidebar h2 {
+      color: #009666;
+      margin-bottom: 30px;
+      font-weight: bold;
+    }
+
+    .sidebar button,
+    .nav-icon {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      background-color: #009666;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .nav-icon {
+      background-color: transparent;
+      color: #333;
+      display: flex;
+      align-items: center;
+      transition: background 0.3s;
+    }
+
+    .nav-icon i {
+      color: #009666;
+      margin-right: 10px;
+    }
+
+    .nav-icon:hover {
+      background-color: #e0f2f1;
+    }
+
+    #writeBtn:hover {
+      color: black;
+      background-color: #eee;
+      border: 1px solid #009666;
+      cursor: pointer;
+    }
+
+    #writeBtn {
+      background-color: #009666;
+      color: white;
+      border: none;
+      border-radius: 10px;
+    }
+
+    .main {
+      flex: 1;
+      padding: 50px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: top;
+      align-items: flex-start;
+    }
+
+    .username-box {
+      font-size: 24px;
+      font-weight: bold;
+      color: #212121;
+      display: flex;
+      align-items: center;
+    }
+
+    .username-box i {
+      margin-left: 10px;
+      color: #009666;
+    }
+
+    .rightbar {
+      width: 240px;
+      padding: 20px;
+      background-color: #ffffff;
+      border-left: 1px solid #ddd;
+      flex-shrink: 0;
+    }
+
+    .search-box {
+      margin-bottom: 30px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 15px 10px 35px;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+      background-image: url('https://cdn-icons-png.flaticon.com/512/622/622669.png');
+      background-repeat: no-repeat;
+      background-size: 16px;
+      background-position: 10px center;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar, .rightbar {
+        display: none;
+      }
+      .main {
+        width: 100%;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Storeez</h2>
+    <button id="writeBtn"><i class="fas fa-pen"></i> Write</button>
+    <div class="nav-icon" id="homeBtn"><i class="fas fa-home"></i><span>Home</span></div>
+    <div class="nav-icon" id="savedBtn"><i class="fas fa-bookmark"></i><span>Saved</span></div>
+    <div class="nav-icon" id="profileBtn"><i class="fas fa-user"></i><span>Profile</span></div>
+    <div class="nav-icon" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Logout</span></div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="username-box" id="userDisplay">
+      Pen ID : <i class="fas fa-pen-nib"></i> <span id="usernameText" style="margin-left: 8px;">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Rightbar -->
+  <div class="rightbar">
+    <div class="search-box">
+      <label for="search-stories">Search Stories</label>
+      <input type="text" id="search-stories" placeholder="Search stories...">
+    </div>
+    <div class="search-box">
+      <label for="search-writers">Search Writers</label>
+      <input type="text" id="search-writers" placeholder="Search writers...">
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "login.html";
+    }
+
+    const decoded = JSON.parse(atob(token.split('.')[1]));
+    const username = decoded.username;
+    document.getElementById("usernameText").textContent = username;
+
+    document.getElementById("writeBtn").onclick = () => window.location.href = "write.html";
+    document.getElementById("homeBtn").onclick = () => window.location.href = "index.html";
+    document.getElementById("savedBtn").onclick = () => window.location.href = "saved.html";
+    document.getElementById("profileBtn").onclick = () => window.location.href = "profile.html";
+    document.getElementById("logoutBtn").onclick = () => {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    };
+  </script>
+
+</body>
+</html>

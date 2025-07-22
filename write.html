@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Write Your Story</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      height: 100vh;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background-color: #ffffff;
+      border-right: 1px solid #ddd;
+      padding: 20px;
+      flex-shrink: 0;
+    }
+    .sidebar h2 {
+      color: #009666;
+      margin-bottom: 30px;
+      font-weight: bold;
+    }
+    .nav-icon {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      background-color: transparent;
+      color: #333;
+      border: none;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.3s;
+    }
+    .nav-icon i {
+      color: #009666;
+      margin-right: 10px;
+    }
+    .nav-icon:hover {
+      background-color: #e0f2f1;
+    }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .Title, .Story {
+      margin-bottom: 30px;
+      border: 2px solid #009666;
+      border-radius: 20px;
+      padding: 20px;
+      background-color: #eee;
+      color: #009666;
+    }
+
+    .Title textarea, .Story textarea {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 16px;
+      color: black;
+      resize: none;
+    }
+
+    .Title textarea::placeholder,
+    .Story textarea::placeholder {
+      color: #ccc;
+      padding-top: 8px;
+    }
+
+    button {
+      background-color: #009666;
+      color: #eee;
+      border-radius: 20px;
+      font-size: 18px;
+      padding: 10px 20px;
+      margin: 10px 0;
+      float: right;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      color: black;
+      background-color: #eee;
+      border: 1px solid #009666;
+    }
+
+    /* Rightbar */
+    .rightbar {
+      width: 240px;
+      padding: 20px;
+      background-color: #ffffff;
+      border-left: 1px solid #ddd;
+      flex-shrink: 0;
+    }
+
+    .search-box {
+      margin-bottom: 30px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 15px 10px 35px;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+      background-image: url('https://cdn-icons-png.flaticon.com/512/622/622669.png');
+      background-repeat: no-repeat;
+      background-size: 16px;
+      background-position: 10px center;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar, .rightbar { display: none; }
+      .main { width: 100%; padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Storeez</h2>
+    <div class="nav-icon" id="homeBtn"><i class="fas fa-home"></i><span>Home</span></div>
+    <div class="nav-icon" id="savedBtn"><i class="fas fa-bookmark"></i><span>Saved</span></div>
+    <div class="nav-icon" id="profileBtn"><i class="fas fa-user"></i><span>Profile</span></div>
+    <div class="nav-icon" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Logout</span></div>
+  </div>
+
+  <!-- Main story input -->
+  <div class="main">
+    <form id="storyForm">
+      <div class="Title">
+        <label for="title" style="font-size: 20px;"><b>TITLE : </b></label>
+        <textarea id="title" name="title" placeholder="Enter the story title..."></textarea>
+      </div>
+
+      <div class="Story">
+        <label for="story" style="font-size: 20px;"><strong>STORY : </strong></label>
+        <textarea id="story" name="story" placeholder="Write your Story..." style="height: 300px;"></textarea>
+      </div>
+
+      <button type="submit">Publish</button>
+    </form>
+  </div>
+
+  <!-- Rightbar -->
+  <div class="rightbar">
+    <div class="search-box">
+      <label for="search-stories">Search Stories</label>
+      <input type="text" id="search-stories" placeholder="Search stories...">
+    </div>
+    <div class="search-box">
+      <label for="search-writers">Search Writers</label>
+      <input type="text" id="search-writers" placeholder="Search writers...">
+    </div>
+  </div>
+
+  <!-- JS Logic -->
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "login.html";
+    }
+
+    // Navigation handlers
+    document.getElementById("homeBtn").onclick = () => window.location.href = "index.html";
+    document.getElementById("savedBtn").onclick = () => window.location.href = "saved.html";
+    document.getElementById("profileBtn").onclick = () => window.location.href = "profile.html";
+    document.getElementById("logoutBtn").onclick = () => {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    };
+
+    // Publish Story
+    document.getElementById("storyForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("title").value;
+      const content = document.getElementById("story").value;
+
+      try {
+        const res = await fetch("http://localhost:3000/api/stories", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ title, content, author: "User" }) // Optional: replace "User" with user info if stored
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert("Story published successfully!");
+          window.location.href = "index.html";
+        } else {
+          alert(data.message || "Error posting story");
+        }
+      } catch (err) {
+        console.error("Error posting story:", err);
+        alert("Failed to post story");
+      }
+    });
+  </script>
+</body>
+</html>

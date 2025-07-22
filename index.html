@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Storeez</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      height: 100vh;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    .sidebar {
+      width: 200px;
+      background-color: #ffffff;
+      border-right: 1px solid #ddd;
+      padding: 20px;
+      flex-shrink: 0;
+    }
+    .sidebar h2 {
+      color: #009666;
+      margin-bottom: 30px;
+      font-weight: bold;
+    }
+    .sidebar button,
+    .nav-icon {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      background-color: #009666;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .nav-icon {
+      background-color: transparent;
+      color: #333;
+      display: flex;
+      align-items: center;
+      transition: background 0.3s;
+    }
+    .nav-icon i { color: #009666; margin-right: 10px; }
+    .nav-icon:hover { background-color: #e0f2f1; }
+          #writeBtn:hover {
+        color: black;
+        background-color: #eee;
+        border: 1px solid #009666;
+        cursor: pointer;
+      }
+
+              #writeBtn {
+          background-color: #009666;
+          color: white;
+          border: none;
+          border-radius: 10px;
+        }
+
+    
+        
+
+    .main {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .story-card {
+      background: #fff;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .story-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+    .story-content {
+      margin-bottom: 10px;
+      color: #444;
+      line-height: 1.5;
+    }
+    .story-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: #777;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+    .story-footer i {
+      color: #009666;
+      margin-right: 5px;
+    }
+    .author {
+      display: flex;
+      align-items: center;
+      color: #555;
+    }
+    .author i { margin-right: 5px; }
+
+    .rightbar {
+      width: 240px;
+      padding: 20px;
+      background-color: #ffffff;
+      border-left: 1px solid #ddd;
+      flex-shrink: 0;
+    }
+    .search-box {
+      margin-bottom: 30px;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 10px 15px 10px 35px;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+      background-image: url('https://cdn-icons-png.flaticon.com/512/622/622669.png');
+      background-repeat: no-repeat;
+      background-size: 16px;
+      background-position: 10px center;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar, .rightbar { display: none; }
+      .main { width: 100%; padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Storeez</h2>
+    <button id="writeBtn"><i class="fas fa-pen"></i> Write</button>
+    <div class="nav-icon" id="homeBtn"><i class="fas fa-home"></i><span>Home</span></div>
+    <div class="nav-icon" id="savedBtn"><i class="fas fa-bookmark"></i><span>Saved</span></div>
+    <div class="nav-icon" id="profileBtn"><i class="fas fa-user"></i><span>Profile</span></div>
+    <div class="nav-icon" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Logout</span></div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main" id="storyContainer">
+    <!-- Stories will load here -->
+  </div>
+
+  <!-- Rightbar -->
+  <div class="rightbar">
+    <div class="search-box">
+      <label for="search-stories">Search Stories</label>
+      <input type="text" id="search-stories" placeholder="Search stories...">
+    </div>
+    <div class="search-box">
+      <label for="search-writers">Search Writers</label>
+      <input type="text" id="search-writers" placeholder="Search writers...">
+    </div>
+  </div>
+
+  <!-- JS Logic -->
+  <script>
+    // Check login token
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "login.html";
+    }
+
+    // Navigation
+    document.getElementById("writeBtn").onclick = () => window.location.href = "write.html";
+    document.getElementById("homeBtn").onclick = () => window.location.href = "index.html";
+    document.getElementById("savedBtn").onclick = () => window.location.href = "saved.html";
+    document.getElementById("profileBtn").onclick = () => window.location.href = "profile.html";
+    document.getElementById("logoutBtn").onclick = () => {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    };
+
+    // Load stories
+    async function loadStories() {
+      try {
+        const res = await fetch('http://localhost:3000/api/stories');
+        const stories = await res.json();
+        const container = document.getElementById('storyContainer');
+        container.innerHTML = '';
+
+        stories.forEach((story, index) => {
+          const card = document.createElement('div');
+          card.className = 'story-card';
+          card.innerHTML = `
+            <div class="story-title">${story.title} <span style="float:right; color:#ccc;">#Top${index+1}</span></div>
+            <div class="story-content">${story.content}</div>
+            <div class="story-footer">
+              <div>
+                <i class="fas fa-heart"></i> Like &nbsp;
+                <i class="fas fa-comment-alt"></i> Comment &nbsp;
+                <i class="fas fa-share-alt"></i> Share
+              </div>
+              <div class="author">
+                <i class="fas fa-pen-nib"></i> ${story.author}
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Error loading stories:", err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadStories);
+
+    
+          // Search stories 
+      
+            document.getElementById('search-stories').addEventListener('input', async function (e) {
+      const query = e.target.value.trim();
+      if (query.length === 0) {
+        loadStories(); // Load all if input is empty
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:3000/api/search?q=${encodeURIComponent(query)}`);
+        const stories = await res.json();
+
+        const container = document.getElementById('storyContainer');
+        container.innerHTML = '';
+
+        // Filter only by story title
+        const filtered = stories.filter(story =>
+          story.title.toLowerCase().includes(query.toLowerCase())
+        );
+
+        filtered.forEach((story, index) => {
+          const card = document.createElement('div');
+          card.className = 'story-card';
+          card.innerHTML = `
+            <div class="story-title">${story.title} <span style="float:right; color:#ccc;">#Top${index + 1}</span></div>
+            <div class="story-content">${story.content}</div>
+            <div class="story-footer">
+              <div>
+                <i class="fas fa-heart"></i> Like &nbsp;
+                <i class="fas fa-comment-alt"></i> Comment &nbsp;
+                <i class="fas fa-share-alt"></i> Share
+              </div>
+              <div class="author"><i class="fas fa-pen-nib"></i> ${story.author}</div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Search stories failed:", err);
+      }
+    });
+
+    
+          // Search by writer name only
+          document.getElementById('search-writers').addEventListener('input', async function (e) {
+            const query = e.target.value.trim();
+            if (query.length === 0) {
+              loadStories(); // load all if empty
+              return;
+            }
+
+            try {
+              const res = await fetch(`http://localhost:3000/api/search?q=${encodeURIComponent(query)}`);
+              const stories = await res.json();
+
+              const container = document.getElementById('storyContainer');
+              container.innerHTML = '';
+
+          // Filter only stories where author's username matches
+          const filtered = stories.filter(story =>
+            story.author.toLowerCase().includes(query.toLowerCase())
+          );
+
+          filtered.forEach((story, index) => {
+            const card = document.createElement('div');
+            card.className = 'story-card';
+            card.innerHTML = `
+              <div class="story-title">${story.title} <span style="float:right; color:#ccc;">#Top${index+1}</span></div>
+              <div class="story-content">${story.content}</div>
+              <div class="story-footer">
+                <div>
+                  <i class="fas fa-heart"></i> Like &nbsp;
+                  <i class="fas fa-comment-alt"></i> Comment &nbsp;
+                  <i class="fas fa-share-alt"></i> Share
+                </div>
+                <div class="author"><i class="fas fa-pen-nib"></i> ${story.author}</div>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+
+        } catch (err) {
+          console.error("Search writers failed:", err);
+        }
+      });
+
+
+  </script>
+
+</body>
+</html>
