@@ -184,7 +184,7 @@
     // Load stories
     async function loadStories() {
       try {
-        const res = await fetch('http://localhost:3000/api/stories');
+        const res = await fetch('https://pramee-backend-1.onrender.com/api/stories');
         const stories = await res.json();
         const container = document.getElementById('storyContainer');
         container.innerHTML = '';
@@ -226,7 +226,8 @@
       }
 
       try {
-        const res = await fetch(`http://localhost:3000/api/search?q=${encodeURIComponent(query)}`);
+        const res = await fetch(`https://pramee-backend-1.onrender.com/api/search?q=${encodeURIComponent(query)}`);
+
         const stories = await res.json();
 
         const container = document.getElementById('storyContainer');
@@ -269,7 +270,7 @@
             }
 
             try {
-              const res = await fetch(`http://localhost:3000/api/search?q=${encodeURIComponent(query)}`);
+              const res = await fetch(`https://pramee-backend-1.onrender.com/api/search?q=${encodeURIComponent(query)}`);
               const stories = await res.json();
 
               const container = document.getElementById('storyContainer');
